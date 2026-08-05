@@ -1,0 +1,20 @@
+node_modules
+.next
+out
+dist
+.env*
+!.env.example
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+design_package
+
+# Checklist pessoal de pendências (contém ids de projeto/token)
+PENDENCIAS.md
+
+# Schema extraído — intermediário do typegen, regerado por `npm run typegen`.
+# Os tipos gerados (sanity/types.generated.ts) SÃO versionados: o typecheck
+# depende deles.
+sanity/extract.json
+.playwright-mcp
+
