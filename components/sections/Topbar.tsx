@@ -11,8 +11,11 @@ export async function Topbar() {
         <span className="tag">{nav.brandTag}</span>
       </Link>
       <nav className="nav">
-        {nav.links.map((link) => (
-          <a key={link.href} href={link.href} className={link.pin ? "pin" : undefined}>
+        {/* A chave é a posição, e não o `href`: um endereço recusado pela
+            sanitização vira `#` (ver `lib/content/href.ts`), e dois deles
+            colidiriam. */}
+        {nav.links.map((link, i) => (
+          <a key={i} href={link.href} className={link.pin ? "pin" : undefined}>
             {link.label}
           </a>
         ))}

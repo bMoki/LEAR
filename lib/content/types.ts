@@ -125,7 +125,11 @@ export type ContactForm = {
   messagePlaceholder: string;
   note: string;
   submitLabel: string;
+  /** Texto do botão enquanto a Server Action está em voo. */
+  sendingLabel: string;
   sentLabel: string;
+  /** Confirmação exibida abaixo do formulário depois do envio. */
+  sentMessage: string;
 };
 
 export type FooterColumn = { title: string; links: { label: string; href: string }[] };

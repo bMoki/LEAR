@@ -49,8 +49,8 @@ export const contactSection = defineType({
       type: "object",
       group: "form",
       description:
-        "Apenas os textos do formulário. O envio da mensagem não é " +
-        "configurado aqui.",
+        "Apenas os textos do formulário. O destino das mensagens é " +
+        "configurado no ambiente (CONTACT_TO_EMAIL), não aqui.",
       fields: [
         defineField({ name: "heading", title: "Título do formulário", type: "string" }),
         defineField({ name: "nameLabel", title: "Rótulo — Nome", type: "string" }),
@@ -103,10 +103,24 @@ export const contactSection = defineType({
         }),
         defineField({ name: "submitLabel", title: "Texto do botão", type: "string" }),
         defineField({
+          name: "sendingLabel",
+          title: "Texto do botão durante o envio",
+          type: "string",
+          description: "Ex.: “Enviando…”. Em branco, o site usa esse mesmo padrão.",
+        }),
+        defineField({
           name: "sentLabel",
           title: "Texto do botão após envio",
           type: "string",
           description: "Ex.: “Anotado ✓”.",
+        }),
+        defineField({
+          name: "sentMessage",
+          title: "Confirmação após envio",
+          type: "string",
+          description:
+            "Frase exibida abaixo do formulário quando a mensagem sai. " +
+            "Em branco, o site usa “Mensagem enviada. Obrigado!”.",
         }),
       ],
     }),

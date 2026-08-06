@@ -1,5 +1,6 @@
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import type { PortableTextBlock } from "@portabletext/types";
+import { safeHref, SAFE_FALLBACK_HREF } from "@/lib/content/href";
 
 /**
  * Renderiza o corpo de uma Notícia (Portable Text, vindo do Sanity).
@@ -13,8 +14,10 @@ import type { PortableTextBlock } from "@portabletext/types";
 const components: PortableTextComponents = {
   marks: {
     link: ({ children, value }) => {
-      const href = typeof value?.href === "string" ? value.href : undefined;
-      if (!href) return <>{children}</>;
+      // O schema já limita o esquema a http/https/mailto, mas só no Studio —
+      // escrita direta pela API não passa por lá. Ver `lib/content/href.ts`.
+      const href = safeHref(typeof value?.href === "string" ? value.href : undefined);
+      if (href === SAFE_FALLBACK_HREF) return <>{children}</>;
       const external = /^https?:\/\//.test(href);
       return (
         <a

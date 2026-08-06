@@ -26,7 +26,10 @@ export async function Hero() {
         </p>
         <div className="hero-cta">
           {hero.ctas.map((cta, i) => (
-            <a key={cta.href} href={cta.href} className={i === 0 ? "btn" : "btn ghost"}>
+            // A chave é a posição, e não o `href`: um endereço recusado pela
+            // sanitização vira `#` (ver `lib/content/href.ts`), e dois deles
+            // colidiriam.
+            <a key={i} href={cta.href} className={i === 0 ? "btn" : "btn ghost"}>
               {cta.label}
             </a>
           ))}

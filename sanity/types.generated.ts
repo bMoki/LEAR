@@ -169,7 +169,9 @@ export type ContactSection = {
     messagePlaceholder?: string;
     note?: string;
     submitLabel?: string;
+    sendingLabel?: string;
     sentLabel?: string;
+    sentMessage?: string;
   };
 };
 
@@ -551,7 +553,7 @@ export type GalleryQueryResult = Array<{
 
 // Source: lib/sanity/queries.ts
 // Variable: contactSectionQuery
-// Query: *[_type == "contactSection"][0]{  heading,  body,  rows[]{ label, value, note },  form{    heading,    nameLabel, namePlaceholder,    orgLabel, orgPlaceholder,    emailLabel, emailPlaceholder,    subjectLabel, subjectOptions[]{ value, label },    messageLabel, messagePlaceholder,    note, submitLabel, sentLabel  }}
+// Query: *[_type == "contactSection"][0]{  heading,  body,  rows[]{ label, value, note },  form{    heading,    nameLabel, namePlaceholder,    orgLabel, orgPlaceholder,    emailLabel, emailPlaceholder,    subjectLabel, subjectOptions[]{ value, label },    messageLabel, messagePlaceholder,    note, submitLabel, sendingLabel, sentLabel, sentMessage  }}
 export type ContactSectionQueryResult = {
   heading: string | null;
   body: string | null;
@@ -577,7 +579,9 @@ export type ContactSectionQueryResult = {
     messagePlaceholder: string | null;
     note: string | null;
     submitLabel: string | null;
+    sendingLabel: string | null;
     sentLabel: string | null;
+    sentMessage: string | null;
   } | null;
 } | null;
 
@@ -732,7 +736,7 @@ declare module "@sanity/client" {
     '*[_type == "project"] | order(orderRank){\n  _id,\n  number,\n  status,\n  title,\n  description,\n  pins[]{ label, warm }\n}': ProjectsQueryResult;
     '*[_type == "coordinator"] | order(orderRank){\n  _id,\n  name,\n  role,\n  caption,\n  bio,\n  lines,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': CoordinatorsQueryResult;
     '*[_type == "galleryItem"] | order(orderRank){\n  _id,\n  caption,\n  stamp,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': GalleryQueryResult;
-    '*[_type == "contactSection"][0]{\n  heading,\n  body,\n  rows[]{ label, value, note },\n  form{\n    heading,\n    nameLabel, namePlaceholder,\n    orgLabel, orgPlaceholder,\n    emailLabel, emailPlaceholder,\n    subjectLabel, subjectOptions[]{ value, label },\n    messageLabel, messagePlaceholder,\n    note, submitLabel, sentLabel\n  }\n}': ContactSectionQueryResult;
+    '*[_type == "contactSection"][0]{\n  heading,\n  body,\n  rows[]{ label, value, note },\n  form{\n    heading,\n    nameLabel, namePlaceholder,\n    orgLabel, orgPlaceholder,\n    emailLabel, emailPlaceholder,\n    subjectLabel, subjectOptions[]{ value, label },\n    messageLabel, messagePlaceholder,\n    note, submitLabel, sendingLabel, sentLabel, sentMessage\n  }\n}': ContactSectionQueryResult;
     '*[_type == "news" && defined(slug.current)]\n  | order(publishedAt desc){\n  _id,\n  title,\n  "slug": slug.current,\n  author,\n  publishedAt,\n  excerpt,\n  body,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': AllNewsQueryResult;
     '*[_type == "news" && defined(slug.current)]\n  | order(publishedAt desc)[0...$limit]{\n  _id,\n  title,\n  "slug": slug.current,\n  author,\n  publishedAt,\n  excerpt,\n  body,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': RecentNewsQueryResult;
     '*[_type == "news" && slug.current == $slug][0]{\n  _id,\n  title,\n  "slug": slug.current,\n  author,\n  publishedAt,\n  excerpt,\n  body,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': NewsBySlugQueryResult;

@@ -1,5 +1,6 @@
 import { sanityFetch } from "@/lib/sanity/client";
 import { toImageRef } from "@/lib/sanity/image";
+import { safeHref } from "./href";
 import {
   coordinatorsQuery,
   contactSectionQuery,
@@ -107,7 +108,7 @@ export async function getNav(): Promise<Nav> {
     brandTag: str(settings.brandTag),
     links: (settings.navLinks ?? []).map((link) => ({
       label: str(link.label),
-      href: str(link.href),
+      href: safeHref(link.href),
       pin: link.pin ?? undefined,
     })),
   };
@@ -122,7 +123,7 @@ export async function getFooter(): Promise<Footer> {
       title: str(column.title),
       links: (column.links ?? []).map((link) => ({
         label: str(link.label),
-        href: str(link.href),
+        href: safeHref(link.href),
       })),
     })),
     fine: settings.footerFine ?? [],
@@ -147,7 +148,7 @@ export async function getHero(): Promise<Hero> {
     lede: str(hero?.lede),
     ctas: (hero?.ctas ?? []).map((cta) => ({
       label: str(cta.label),
-      href: str(cta.href),
+      href: safeHref(cta.href),
     })),
     polaroid: {
       image: toImageRef(hero?.polaroid?.image ?? null, "hero-pic"),
@@ -275,6 +276,11 @@ export async function getContactForm(): Promise<ContactForm> {
     messagePlaceholder: str(form?.messagePlaceholder),
     note: str(form?.note),
     submitLabel: str(form?.submitLabel),
+    // Rótulos do envio: chegaram depois que o documento já existia no Sanity,
+    // então caem num padrão em vez de renderizar vazio. Assim que alguém
+    // preencher no Studio, o valor do CMS manda.
+    sendingLabel: form?.sendingLabel || "Enviando…",
     sentLabel: str(form?.sentLabel),
+    sentMessage: form?.sentMessage || "Mensagem enviada. Obrigado!",
   };
 }

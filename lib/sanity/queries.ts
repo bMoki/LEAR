@@ -95,7 +95,7 @@ export const contactSectionQuery = defineQuery(`*[_type == "contactSection"][0]{
     emailLabel, emailPlaceholder,
     subjectLabel, subjectOptions[]{ value, label },
     messageLabel, messagePlaceholder,
-    note, submitLabel, sentLabel
+    note, submitLabel, sendingLabel, sentLabel, sentMessage
   }
 }`);
 
