@@ -28,7 +28,7 @@ npm run dev
 | `NEXT_PUBLIC_SANITY_API_VERSION` | Versão da API travada por data. |
 | `SANITY_WEBHOOK_SECRET` | Valida a assinatura do webhook de revalidação. |
 | `SANITY_WRITE_TOKEN` | **Só local**, só para os scripts de `scripts/wp/`. Não configure em produção. |
-| `NEXT_PUBLIC_SITE_URL` | Endereço do site. Vazio enquanto não houver domínio — tudo cai em `http://localhost:3000`. |
+| `SITE_URL` | Endereço do site. Vazio enquanto não houver domínio — tudo cai em `http://localhost:3000`. |
 
 ## Scripts
 

@@ -22,8 +22,15 @@
  * Quando o endereço definitivo existir (ver `PENDENCIAS.md`), esta é a única
  * linha a mudar: canonical, `og:url`, `sitemap.xml` e `robots.txt` derivam
  * dela.
+ *
+ * **Sem o prefixo `NEXT_PUBLIC_`, de propósito.** Ele serve para embutir um
+ * valor no bundle do navegador, e nada aqui precisa disso: os sete
+ * consumidores destas constantes — `metadata`, `sitemap.ts`, `robots.ts`, o
+ * dado estruturado e os cards sociais — rodam todos no servidor. O prefixo só
+ * ampliaria a superfície e faz a Vercel avisar, com razão, que o valor está
+ * sendo exposto à toa.
  */
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000";
+export const SITE_URL = process.env.SITE_URL?.trim() || "http://localhost:3000";
 
 /**
  * Se os buscadores podem indexar este ambiente. **Padrão: não.**
@@ -43,7 +50,7 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://loca
  * Vale `"true"` num lugar só: o ambiente de produção, depois que o domínio
  * definitivo estiver respondendo.
  */
-export const ALLOW_INDEXING = process.env.NEXT_PUBLIC_ALLOW_INDEXING === "true";
+export const ALLOW_INDEXING = process.env.ALLOW_INDEXING === "true";
 
 /** A sigla. Curta o bastante para caber no fim de todo `<title>`. */
 export const BRAND_SHORT = "LEAR";
