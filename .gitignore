@@ -18,3 +18,56 @@ PENDENCIAS.md
 sanity/extract.json
 .playwright-mcp
 
+# Despejo do WordPress antigo — 125 MB cada, e o mesmo conteúdo nos dois
+# formatos. Não entram no repositório: quem precisa deles é só o
+# `scripts/wp/extract.ts`, e o que ele produz (`scripts/wp/content.json`) é
+# versionado no lugar. Ver ADR 0006.
+#
+# Por padrão e não por nome exato: o despejo é o banco de um site **invadido**,
+# com os hashes de senha do `wp_users`, e este repositório é público. Uma
+# segunda cópia salva como `herpetologia (1).json` não pode depender de alguém
+# reparar nela no `git status`. O `.sql` vale para qualquer arquivo — o projeto
+# não versiona nenhum — e o JSON precisa de nome, porque `content.json` e
+# `package.json` são JSON que ficam.
+herpetologia*.json
+*.sql
+
+
+# ---------------------------------------------------------------------------
+# Documentos operacionais — fora do git porque o repositório é PÚBLICO
+# (github.com/bMoki/LEAR). O critério não é "é segredo?", e sim: **o que este
+# arquivo entrega a quem não deveria tê-lo?**
+# ---------------------------------------------------------------------------
+
+# Relato de comprometimento do WordPress antigo. Traz os caminhos exatos de 24
+# webshells num site que **pode continuar no ar sem remediação**, a cegueira de
+# log que vale para toda a hospedagem `sites.ufsc.br` e o e-mail pessoal de um
+# terceiro atado a uma conta comprometida. Publicá-lo antes de a SeTIC
+# responder é entregar o mapa. Ele existe para ser enviado por e-mail, não
+# para ser indexado.
+docs/incidente-seguranca-site-antigo.md
+
+# Revisão de segurança deste repositório. Enumera o que ainda está aberto —
+# credencial ativa, dataset público — o que é exatamente a lista que um
+# atacante montaria sozinho. Volta a fazer sentido versionar se o repositório
+# virar privado.
+REVISAO-SEGURANCA.md
+
+# Runbook de publicação e o pedido de DNS. São documentos de operação, não de
+# projeto: repetem o id do token do Sanity, descrevem em que painel cada
+# segredo é colado e trazem o texto de handoff com dados de quem administra a
+# zona. As **decisões** que eles executam estão nos ADRs, que continuam
+# versionados.
+docs/publicacao.md
+docs/pedido-dns.md
+
+# ---------------------------------------------------------------------------
+# Artefatos de ferramenta
+# ---------------------------------------------------------------------------
+
+# Vínculo local do projeto com a Vercel (`vercel link`): id de projeto e de
+# organização daquela conta, mais o cache de build do CLI.
+.vercel
+
+# Log solto de execução — nenhum é fonte, todos são de uma máquina só.
+*.log

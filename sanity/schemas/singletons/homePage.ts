@@ -74,18 +74,19 @@ export const homePage = defineType({
           title: "Foto polaroid",
           type: "object",
           fields: [
+            // Sem `required` desde o ADR 0006: as fotos do acervo ainda não
+            // subiram, e a página inicial não pode depender delas para existir.
             defineField({
               name: "image",
               title: "Imagem",
               type: "imageWithAlt",
-              validation: (Rule) => Rule.required(),
             }),
             defineField({
               name: "caption",
               title: "Legenda",
               type: "string",
-              description: "Texto manuscrito abaixo da foto. Ex.: “Bothrops jararaca, Serra do Mar — 14.03”.",
-              validation: (Rule) => Rule.required(),
+              description:
+                "Texto manuscrito abaixo da foto. Ex.: “Bothrops jararaca, Serra do Mar — 14.03”.",
             }),
             defineField({
               name: "stamp",

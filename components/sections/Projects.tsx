@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { SectionHead } from "./SectionHead";
-import { InlineText } from "@/components/ui/RichText";
+import { ProjectCard } from "./ProjectCard";
 import { getProjects, getSectionHead } from "@/lib/content";
 
 export async function Projects() {
@@ -10,26 +11,18 @@ export async function Projects() {
       <SectionHead kicker={head.kicker} title={head.title} blurb={head.blurb} />
 
       <div className="projects">
-        {projects.map((p) => (
-          <article className={`card ${p.variant}`} key={p.number}>
-            <div className="corner-doodle">{p.doodle}</div>
-            <div className="num">
-              <span>{p.number}</span>
-              <span className="right">{p.status}</span>
-            </div>
-            <h3>
-              <InlineText>{p.title}</InlineText>
-            </h3>
-            <p className="desc">{p.description}</p>
-            <div className="pin-row">
-              {p.pins.map((pin) => (
-                <span key={pin.label} className={`pin${pin.warm ? " warm" : ""}`}>
-                  {pin.label}
-                </span>
-              ))}
-            </div>
-          </article>
+        {projects.map((project) => (
+          <ProjectCard key={project.slug} project={project} />
         ))}
+      </div>
+
+      {/* Mesma saída que a seção de notícias já tinha. Sem ela `/projetos`
+          ficaria órfã: nada na home apontaria para o índice, e página que
+          ninguém linka é página mal rastreada. */}
+      <div className="news-footer">
+        <Link href="/projetos" className="btn ghost">
+          ver todos →
+        </Link>
       </div>
     </section>
   );

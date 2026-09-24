@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import type { PortableTextBlock } from "@portabletext/types";
 
 /**
  * Content model for the whole site. Every text field is a plain string
@@ -66,14 +67,74 @@ export type Manifesto = {
   sig: string;
 };
 
-export type Project = {
+/**
+ * Frente de pesquisa (ver CONTEXT.md). O que o cartão e a página do projeto
+ * têm em comum.
+ *
+ * Os campos da ficha são todos opcionais: um projeto com título e descrição é
+ * um projeto válido, e nenhum campo pode travar a publicação (ADR 0005).
+ */
+type ProjectBase = {
+  /** Campo próprio e estável: editar o título não muda a URL. */
+  slug: string;
   number: string;
   status: string;
+  /** Markdown inline. */
   title: string;
   description: string;
+  image: ImageRef;
+  bioma?: string;
+  /** Nome em texto livre — não precisa ser alguém da equipe cadastrada. */
+  responsavel?: string;
+  periodoInicio?: string;
+  /** Vazio enquanto o projeto estiver em curso. */
+  periodoFim?: string;
+  financiador?: string;
+  /** `_updatedAt` do Sanity, ISO 8601. Vira `lastmod` no sitemap. */
+  updatedAt: string;
+};
+
+/** O projeto inteiro, como a rota `/projetos/[slug]` precisa dele. */
+export type Project = ProjectBase & {
+  /** Ver **Táxon** no CONTEXT.md: as duas formas convivem, e as duas são
+   * opcionais. */
+  taxonCientifico?: string;
+  taxonPopular: string[];
+  /** Opcional. É ele que faz a página valer por si (ADR 0005). */
+  body: PortableTextBlock[];
+};
+
+/**
+ * O projeto como cartão — na home e em `/projetos`.
+ *
+ * `variant` e `doodle` são decoração derivada da **posição na lista**, e não
+ * conteúdo do CMS (ADR 0003). Por isso não estão em `Project`: numa rota por
+ * slug não existe posição em lista nenhuma, e inventar uma seria decidir a cor
+ * de um cartão que não é exibido.
+ */
+export type ProjectCard = ProjectBase & {
   doodle: string;
-  pins: { label: string; warm?: boolean }[];
   variant: "c-1" | "c-2" | "c-3" | "c-4";
+};
+
+/**
+ * Página institucional — a coleção herpetológica, o programa de extensão, as
+ * visitas de escolas (ver **Página** no CONTEXT.md).
+ *
+ * É o tipo mais magro do site de propósito: título, texto e endereço. Se um
+ * conteúdo precisa ser filtrado, agrupado ou relacionado, ele não é uma Página
+ * — é um tipo próprio.
+ */
+export type SitePage = {
+  slug: string;
+  title: string;
+  subtitle?: string;
+  image: ImageRef;
+  body: PortableTextBlock[];
+  /** Vazio, a busca usa o começo do texto. */
+  excerpt?: string;
+  /** `_updatedAt` do Sanity, ISO 8601. Vira `lastmod` no sitemap. */
+  updatedAt: string;
 };
 
 export type Coordinator = {

@@ -5,7 +5,10 @@ export async function Manifesto() {
   const manifesto = await getManifesto();
 
   return (
-    <section className="section" style={{ paddingTop: 80 }}>
+    // O espaçamento saiu de um `style` embutido para `.section--manifesto`:
+    // estilo em atributo vence media query, e este bloco precisa encolher nas
+    // telas menores (ADR 0004).
+    <section className="section section--manifesto">
       <div className="manifesto">
         <span className="quote-mark">&ldquo;</span>
         <p>

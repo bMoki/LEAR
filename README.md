@@ -27,7 +27,8 @@ npm run dev
 | `NEXT_PUBLIC_SANITY_DATASET` | `production`. |
 | `NEXT_PUBLIC_SANITY_API_VERSION` | Versão da API travada por data. |
 | `SANITY_WEBHOOK_SECRET` | Valida a assinatura do webhook de revalidação. |
-| `SANITY_WRITE_TOKEN` | **Só local**, só para rodar o seed. Não configure em produção. |
+| `SANITY_WRITE_TOKEN` | **Só local**, só para os scripts de `scripts/wp/`. Não configure em produção. |
+| `NEXT_PUBLIC_SITE_URL` | Endereço do site. Vazio enquanto não houver domínio — tudo cai em `http://localhost:3000`. |
 
 ## Scripts
 
@@ -69,17 +70,36 @@ webhook em `/api/revalidate`, que invalida só as páginas afetadas. Há um
 
 ```
 app/
-  (site)/         páginas públicas — globals.css, viewport 1280, Topbar
+  layout.tsx      raiz mínima — fontes e metadataBase
+  (site)/         páginas públicas — globals.css, viewport, Topbar, title.template
+    page.tsx        /
+    noticias/       /noticias e /noticias/[slug]
+    projetos/       /projetos e /projetos/[slug]
+    opengraph-*     card social de cada rota
   (studio)/       Sanity Studio em /studio
   api/revalidate/ webhook de revalidação
-components/       seções, UI e notícias
+  _fonts/         .ttf usados só pelos cards sociais
+  sitemap.ts      robots.ts      favicon.ico / icon.svg
+components/       seções, UI, notícias, projetos e JSON-LD
 lib/content/      conteúdo do site (tipos + adapter Sanity)
 lib/news/         notícias (tipos + adapter Sanity)
 lib/sanity/       cliente, queries GROQ, imagem, tags de cache
+lib/seo/          títulos, descrições, dado estruturado, card social e redirecionamentos
 sanity/           schema, estrutura do Studio, tipos gerados
-scripts/          seed inicial + snapshot do conteúdo pré-CMS
+scripts/wp/       importação do site antigo (ADR 0006) + gerador de redirecionamentos
 docs/             ADRs e planos
 ```
+
+### Rotas
+
+| Rota | O que é |
+|---|---|
+| `/` | Landing. Todas as seções, e o `Organization` do dado estruturado. |
+| `/noticias` | Arquivo cronológico. |
+| `/noticias/[slug]` | A notícia. Pré-renderizada, com `NewsArticle` + trilha. |
+| `/projetos` | Índice das frentes de pesquisa. |
+| `/projetos/[slug]` | A frente de pesquisa: ficha tipada + texto opcional. |
+| `/sitemap.xml`, `/robots.txt` | Gerados; leem o CMS pelas mesmas tags de cache. |
 
 ## Documentação
 
@@ -88,12 +108,34 @@ docs/             ADRs e planos
 - [docs/adr/](docs/adr/) — decisões de arquitetura.
 - [docs/plano-cms-headless.md](docs/plano-cms-headless.md) — plano da migração
   para o CMS.
+- [docs/plano-seo.md](docs/plano-seo.md) — plano de responsividade e estrutura
+  para busca. Executa os ADRs 0004 e 0005. **Implementado.**
+
+Três documentos de operação ficam **fora do git**, por decisão registrada no
+`.gitignore`: o runbook de publicação (`docs/publicacao.md`), o pedido de
+registros DNS (`docs/pedido-dns.md`) e a revisão de segurança
+(`REVISAO-SEGURANCA.md`). Eles descrevem em que painel cada segredo é colado e
+o que ainda está aberto — informação de operação, não de projeto. As decisões
+que eles executam estão nos ADRs.
 
 ## Notas
 
-- **Layout desktop fixo em 1280px** (`app/(site)/layout.tsx`). Não é
-  responsivo, por decisão de design.
+- **Site responsivo**, com breakpoints em 480 / 768 / 1024 / 1280
+  ([ADR 0004](docs/adr/0004-site-responsivo.md), que reverteu o antigo viewport
+  fixo de 1280). As media queries ficam **junto de cada bloco** do
+  `globals.css`, não reunidas no fim — mexer na galeria tem de ser uma leitura
+  só. Os limites são inclusivos (`max-width: 768px`): 480 e 768 são larguras de
+  aparelho, e conferir nelas precisa mostrar o layout daquele aparelho.
+  Não há teste que pegue regressão visual: confira as quatro larguras a cada
+  ajuste, tratando 1280 como a referência a preservar.
 - **CSS semântico** em `app/(site)/globals.css` com tokens `@theme`. Seguir esse
   padrão em vez de encher os componentes de utility-classes.
+- **Nenhum campo de SEO bloqueia a publicação.** Título, descrição e card social
+  são derivados do conteúdo por `lib/seo/metadata.ts`; o campo manual (o
+  "Resumo" da Notícia) é só override. Rota nova = um `buildMetadata`, um
+  `opengraph-image.tsx` e uma linha no `sitemap.ts`.
+- **Card social por rota, não na raiz.** `openGraph` definido num segmento
+  substitui o do segmento anterior, então um `opengraph-image` só na raiz é
+  descartado por toda página que declare metadata. Ver `lib/seo/og-card.tsx`.
 - **Dataset público** (limitação do plano gratuito do Sanity): nada
   confidencial no CMS.

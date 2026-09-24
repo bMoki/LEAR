@@ -47,4 +47,61 @@ export const structure: StructureResolver = (S, context) =>
             .title("Notícias")
             .defaultOrdering([{ field: "publishedAt", direction: "desc" }])
         ),
+
+      S.divider(),
+
+      // A Herpetoteca é o maior acervo do Studio — algumas centenas de
+      // espécies. Uma lista única obrigaria a rolar por todas para achar uma
+      // serpente, então a primeira divisão é a mesma que o site mostra ao
+      // público: anfíbios de um lado, répteis do outro.
+      S.listItem()
+        .id("herpetoteca")
+        .title("Herpetoteca")
+        .child(
+          S.list()
+            .title("Herpetoteca")
+            .items([
+              ...(
+                [
+                  ["anfibio", "Anfíbios"],
+                  ["reptil", "Répteis"],
+                ] as const
+              ).map(([grupo, title]) =>
+                S.listItem()
+                  .id(grupo)
+                  .title(title)
+                  .child(
+                    S.documentTypeList("species")
+                      .title(title)
+                      .filter("_type == 'species' && group == $grupo")
+                      .params({ grupo })
+                      .defaultOrdering([{ field: "scientificName", direction: "asc" }])
+                  )
+              ),
+              S.divider(),
+              S.listItem()
+                .id("todas")
+                .title("Todas as espécies")
+                .child(
+                  S.documentTypeList("species")
+                    .title("Todas as espécies")
+                    .defaultOrdering([{ field: "scientificName", direction: "asc" }])
+                ),
+            ])
+        ),
+
+      orderableDocumentListDeskItem({ type: "locality", title: "Locais", S, context }),
+
+      S.listItem()
+        .id("publication")
+        .title("Publicações")
+        .child(
+          S.documentTypeList("publication")
+            .title("Publicações")
+            .defaultOrdering([{ field: "year", direction: "desc" }])
+        ),
+
+      S.divider(),
+
+      S.documentTypeListItem("page").title("Páginas"),
     ]);

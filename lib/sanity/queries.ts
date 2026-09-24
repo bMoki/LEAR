@@ -12,6 +12,17 @@ import { defineQuery } from "next-sanity";
  * As tags de cache de cada query estão em `lib/sanity/tags.ts`.
  */
 
+/**
+ * A edição mais recente de qualquer conteúdo que a home mostra — vira o
+ * `lastmod` de `/` no sitemap. A home agrega vários tipos de documento, então
+ * a data dela não sai de um documento só.
+ */
+export const siteUpdatedAtQuery = defineQuery(
+  `*[_type in ["siteSettings", "homePage", "contactSection", "sectionHead",
+    "project", "coordinator", "galleryItem", "news"]]
+  | order(_updatedAt desc)[0]._updatedAt`
+);
+
 export const siteSettingsQuery = defineQuery(`*[_type == "siteSettings"][0]{
   brandName,
   brandTag,
@@ -50,13 +61,87 @@ export const sectionHeadsQuery = defineQuery(`*[_type == "sectionHead"]{
   blurb
 }`);
 
-export const projectsQuery = defineQuery(`*[_type == "project"] | order(orderRank){
+/**
+ * A lista de projetos — cartões da home e da rota `/projetos`.
+ *
+ * Não traz `body` nem os campos de táxon: nenhum dos dois aparece num cartão, e
+ * o corpo é o campo mais pesado do documento. Quem precisa deles é
+ * `projectBySlugQuery`.
+ *
+ * `defined(slug.current)` pela mesma razão que na Notícia: projeto sem endereço
+ * não pode virar link nem entrar no sitemap.
+ */
+export const projectsQuery = defineQuery(`*[_type == "project" && defined(slug.current)]
+  | order(orderRank){
   _id,
+  _updatedAt,
   number,
   status,
   title,
+  "slug": slug.current,
   description,
-  pins[]{ label, warm }
+  bioma,
+  responsavel,
+  periodoInicio,
+  periodoFim,
+  financiador,
+  image{
+    alt,
+    placeholder,
+    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }
+  }
+}`);
+
+export const projectBySlugQuery = defineQuery(`*[_type == "project" && slug.current == $slug][0]{
+  _id,
+  _updatedAt,
+  number,
+  status,
+  title,
+  "slug": slug.current,
+  description,
+  bioma,
+  taxonCientifico,
+  taxonPopular,
+  responsavel,
+  periodoInicio,
+  periodoFim,
+  financiador,
+  body,
+  image{
+    alt,
+    placeholder,
+    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }
+  }
+}`);
+
+/**
+ * Páginas institucionais. Só o que o índice e o sitemap precisam — o corpo é
+ * o campo mais pesado do documento e não é lido em lista.
+ */
+export const pagesQuery = defineQuery(`*[_type == "page" && defined(slug.current)]
+  | order(title asc){
+  _id,
+  _updatedAt,
+  title,
+  "slug": slug.current,
+  subtitle,
+  excerpt
+}`);
+
+export const pageBySlugQuery = defineQuery(`*[_type == "page" && slug.current == $slug][0]{
+  _id,
+  _updatedAt,
+  title,
+  "slug": slug.current,
+  subtitle,
+  excerpt,
+  body,
+  image{
+    alt,
+    placeholder,
+    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }
+  }
 }`);
 
 export const coordinatorsQuery = defineQuery(`*[_type == "coordinator"] | order(orderRank){
@@ -102,6 +187,7 @@ export const contactSectionQuery = defineQuery(`*[_type == "contactSection"][0]{
 export const allNewsQuery = defineQuery(`*[_type == "news" && defined(slug.current)]
   | order(publishedAt desc){
   _id,
+  _updatedAt,
   title,
   "slug": slug.current,
   author,
@@ -118,6 +204,7 @@ export const allNewsQuery = defineQuery(`*[_type == "news" && defined(slug.curre
 export const recentNewsQuery = defineQuery(`*[_type == "news" && defined(slug.current)]
   | order(publishedAt desc)[0...$limit]{
   _id,
+  _updatedAt,
   title,
   "slug": slug.current,
   author,
@@ -133,6 +220,7 @@ export const recentNewsQuery = defineQuery(`*[_type == "news" && defined(slug.cu
 
 export const newsBySlugQuery = defineQuery(`*[_type == "news" && slug.current == $slug][0]{
   _id,
+  _updatedAt,
   title,
   "slug": slug.current,
   author,

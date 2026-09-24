@@ -18,6 +18,7 @@ export const TAGS = {
   coordinator: "coordinator",
   galleryItem: "galleryItem",
   news: "news",
+  page: "page",
 } as const;
 
 export type Tag = (typeof TAGS)[keyof typeof TAGS];

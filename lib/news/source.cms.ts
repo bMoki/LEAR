@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { PortableTextBlock } from "@portabletext/types";
 import { sanityFetch } from "@/lib/sanity/client";
 import { toImageRef } from "@/lib/sanity/image";
@@ -26,6 +27,9 @@ function toNewsItem(item: NewsQueryItem): NewsItem {
     body: (item.body ?? []) as PortableTextBlock[],
     author: item.author ?? "",
     publishedAt: item.publishedAt ?? "",
+    // Sem `str()`: `_updatedAt` é metadado do Sanity, não campo de schema, e o
+    // typegen o descreve como obrigatório — nunca chega nulo.
+    updatedAt: item._updatedAt,
     image: toImageRef(item.image ?? null, item._id),
     excerpt: item.excerpt ?? undefined,
   };
@@ -48,11 +52,21 @@ export async function getNews(): Promise<NewsItem[]> {
   return items.map(toNewsItem);
 }
 
-export async function getNewsBySlug(slug: string): Promise<NewsItem | null> {
+/**
+ * Memoizada com o `cache()` do React porque a rota `/noticias/[slug]` lê a
+ * mesma notícia duas vezes: uma no `generateMetadata` e outra na página. É a
+ * recomendação dos docs do Next instalado para exatamente este caso
+ * (`14-metadata-and-og-images.md:133`). O `opengraph-image` da rota é uma
+ * terceira leitura.
+ *
+ * A memoização vale por requisição — não substitui o cache de `sanityFetch`,
+ * que é o que atravessa requisições e responde ao webhook de revalidação.
+ */
+export const getNewsBySlug = cache(async (slug: string): Promise<NewsItem | null> => {
   const item = await sanityFetch<NewsBySlugQueryResult, { slug: string }>({
     query: newsBySlugQuery,
     params: { slug },
     tags: [TAGS.news],
   });
   return item ? toNewsItem(item) : null;
-}
+});

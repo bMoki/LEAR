@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { legacyRedirects } from "./lib/seo/redirects";
 
 /**
  * O `projectId` é lido do ambiente (e não escrito aqui) por dois motivos: é a
@@ -91,6 +92,27 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io", pathname: `/images/${projectId}/**` },
     ],
+  },
+
+  /**
+   * Os endereços do site antigo.
+   *
+   * `herpetologia.ufsc.br` responde desde 2010 e tem URLs indexadas. O
+   * WordPress servia tudo na raiz — `/{post_name}/` valia para página, notícia
+   * e projeto igualmente — e o site novo separa por prefixo. Sem esta tabela, a
+   * troca de DNS transforma quinze anos de links em 404, inclusive os citados
+   * em artigo.
+   *
+   * A lista é **gerada** por `npx tsx scripts/wp/redirects.ts`, que a deriva do
+   * mesmo `slugDe` que a importação usa, e confere cada destino contra o
+   * conteúdo importado antes de escrever. Editar `lib/seo/redirects.ts` à mão
+   * perde essa garantia.
+   *
+   * O Next normaliza a barra final antes de casar (`/x/` → `/x`), então as
+   * origens são gravadas sem ela.
+   */
+  async redirects() {
+    return legacyRedirects;
   },
 
   async headers() {

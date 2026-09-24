@@ -45,6 +45,16 @@ export const imageWithAlt = defineType({
         "de instrução do que entra aqui. Ex.: “foto · serpente · close em " +
         "folhagem · vertical”.",
     }),
+    // Crédito é do domínio, não decoração: quase toda foto do acervo do
+    // laboratório é de alguém identificado, e o site antigo carregava o nome
+    // na legenda de cada figura. Fica aqui, junto da imagem, para não se
+    // perder quando a foto for movida de um campo para outro.
+    defineField({
+      name: "credit",
+      title: "Crédito",
+      type: "string",
+      description: "Quem fotografou. Só o nome — o site acrescenta o “Foto:”.",
+    }),
   ],
   preview: {
     select: { media: "image", title: "alt", subtitle: "placeholder" },

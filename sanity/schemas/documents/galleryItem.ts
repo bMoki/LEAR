@@ -18,7 +18,10 @@ export const galleryItem = defineType({
       name: "image",
       title: "Foto",
       type: "imageWithAlt",
-      validation: (Rule) => Rule.required(),
+      // Sem `required` desde o ADR 0006: as fotos do acervo antigo dependem de
+      // uma janela de acesso ao servidor da UFSC, e o registro precisa poder
+      // existir enquanto a foto não chega.
+      description: "Pode ficar vazia enquanto a foto não for enviada.",
     }),
     defineField({
       name: "caption",

@@ -19,7 +19,17 @@ export type NewsItem = {
   author: string;
   /** ISO 8601. */
   publishedAt: string;
+  /**
+   * Quando o documento foi editado pela última vez — o `_updatedAt` do Sanity,
+   * também em ISO 8601. Não é data de publicação e não aparece na página: serve
+   * de `dateModified` no dado estruturado e de `lastmod` no sitemap.
+   */
+  updatedAt: string;
   image: ImageRef;
-  /** Ainda não exibido em lugar nenhum; reservado. */
+  /**
+   * O "Resumo". Vira a `<meta description>` e o `og:description` da notícia
+   * quando preenchido; sem ele, a descrição sai do início do corpo
+   * (ADR 0005, *Nenhum campo de SEO bloqueia a publicação*).
+   */
   excerpt?: string;
 };

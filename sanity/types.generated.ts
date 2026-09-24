@@ -15,16 +15,15 @@
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
 // Source: sanity/extract.json
-export type News = {
+export type Page = {
   _id: string;
-  _type: "news";
+  _type: "page";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
   title?: string;
   slug?: Slug;
-  author?: string;
-  publishedAt?: string;
+  subtitle?: string;
   image?: ImageWithAlt;
   body?: Array<{
     children?: Array<{
@@ -65,12 +64,156 @@ export type ImageWithAlt = {
   };
   alt?: string;
   placeholder?: string;
+  credit?: string;
 };
 
 export type Slug = {
   _type: "slug";
   current?: string;
   source?: string;
+};
+
+export type Publication = {
+  _id: string;
+  _type: "publication";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  reference?: string;
+  year?: string;
+  kind?: "artigo" | "livro" | "capitulo";
+  url?: string;
+  authors?: Array<string>;
+};
+
+export type Locality = {
+  _id: string;
+  _type: "locality";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  slug?: Slug;
+  shortName?: string;
+  description?: string;
+  image?: ImageWithAlt;
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h2" | "h3" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  orderRank?: string;
+};
+
+export type LocalityReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "locality";
+};
+
+export type Species = {
+  _id: string;
+  _type: "species";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  scientificName?: string;
+  slug?: Slug;
+  commonNames?: Array<string>;
+  group?: "anfibio" | "reptil";
+  ordem?:
+    | "Anura"
+    | "Caudata"
+    | "Gymnophiona"
+    | "Squamata"
+    | "Testudines"
+    | "Crocodylia";
+  familia?: string;
+  subfamilia?: string;
+  localities?: Array<
+    {
+      _key: string;
+    } & LocalityReference
+  >;
+  habitat?: string;
+  description?: string;
+  reproduction?: string;
+  distribution?: string;
+  threatStatus?: "LC" | "NT" | "VU" | "EN" | "CR" | "DD" | "NE";
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h2" | "h3" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  references?: string;
+  image?: ImageWithAlt;
+  gallery?: Array<
+    {
+      _key: string;
+    } & ImageWithAlt
+  >;
+  audioUrl?: string;
+  videoUrl?: string;
+};
+
+export type News = {
+  _id: string;
+  _type: "news";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  author?: string;
+  publishedAt?: string;
+  image?: ImageWithAlt;
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h2" | "h3" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  origin?: "noticia" | "publicacao";
+  excerpt?: string;
 };
 
 export type GalleryItem = {
@@ -97,6 +240,8 @@ export type Coordinator = {
   caption?: string;
   bio?: string;
   lines?: string;
+  email?: string;
+  lattes?: string;
   orderRank?: string;
 };
 
@@ -106,16 +251,37 @@ export type Project = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  number?: string;
-  status?: string;
   title?: string;
+  slug?: Slug;
+  number?: string;
+  status?: "em campo" | "em an\xE1lise" | "conclu\xEDdo";
   description?: string;
-  pins?: Array<{
-    label?: string;
-    warm?: boolean;
-    _type: "pin";
+  image?: ImageWithAlt;
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h2" | "h3" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
     _key: string;
   }>;
+  bioma?: string;
+  taxonCientifico?: string;
+  taxonPopular?: Array<string>;
+  responsavel?: string;
+  periodoInicio?: string;
+  periodoFim?: string;
+  financiador?: string;
   orderRank?: string;
 };
 
@@ -371,10 +537,15 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
-  | News
+  | Page
   | SanityImageAssetReference
   | ImageWithAlt
   | Slug
+  | Publication
+  | Locality
+  | LocalityReference
+  | Species
+  | News
   | GalleryItem
   | Coordinator
   | Project
@@ -395,6 +566,11 @@ export type AllSanitySchemaTypes =
   | SanityAssetSourceData
   | SanityImageAsset
   | Geopoint;
+
+// Source: lib/sanity/queries.ts
+// Variable: siteUpdatedAtQuery
+// Query: *[_type in ["siteSettings", "homePage", "contactSection", "sectionHead",    "project", "coordinator", "galleryItem", "news"]]  | order(_updatedAt desc)[0]._updatedAt
+export type SiteUpdatedAtQueryResult = string | null;
 
 // Source: lib/sanity/queries.ts
 // Variable: siteSettingsQuery
@@ -483,18 +659,152 @@ export type SectionHeadsQueryResult = Array<{
 
 // Source: lib/sanity/queries.ts
 // Variable: projectsQuery
-// Query: *[_type == "project"] | order(orderRank){  _id,  number,  status,  title,  description,  pins[]{ label, warm }}
+// Query: *[_type == "project" && defined(slug.current)]  | order(orderRank){  _id,  _updatedAt,  number,  status,  title,  "slug": slug.current,  description,  bioma,  responsavel,  periodoInicio,  periodoFim,  financiador,  image{    alt,    placeholder,    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }  }}
 export type ProjectsQueryResult = Array<{
   _id: string;
+  _updatedAt: string;
   number: string | null;
-  status: string | null;
+  status: "conclu\xEDdo" | "em an\xE1lise" | "em campo" | null;
   title: string | null;
+  slug: string | null;
   description: string | null;
-  pins: Array<{
-    label: string | null;
-    warm: boolean | null;
-  }> | null;
+  bioma: string | null;
+  responsavel: string | null;
+  periodoInicio: string | null;
+  periodoFim: string | null;
+  financiador: string | null;
+  image: {
+    alt: string | null;
+    placeholder: string | null;
+    image: {
+      asset: {
+        _id: string;
+        metadata: {
+          dimensions: SanityImageDimensions | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    } | null;
+  } | null;
 }>;
+
+// Source: lib/sanity/queries.ts
+// Variable: projectBySlugQuery
+// Query: *[_type == "project" && slug.current == $slug][0]{  _id,  _updatedAt,  number,  status,  title,  "slug": slug.current,  description,  bioma,  taxonCientifico,  taxonPopular,  responsavel,  periodoInicio,  periodoFim,  financiador,  body,  image{    alt,    placeholder,    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }  }}
+export type ProjectBySlugQueryResult = {
+  _id: string;
+  _updatedAt: string;
+  number: string | null;
+  status: "conclu\xEDdo" | "em an\xE1lise" | "em campo" | null;
+  title: string | null;
+  slug: string | null;
+  description: string | null;
+  bioma: string | null;
+  taxonCientifico: string | null;
+  taxonPopular: Array<string> | null;
+  responsavel: string | null;
+  periodoInicio: string | null;
+  periodoFim: string | null;
+  financiador: string | null;
+  body: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "blockquote" | "h2" | "h3" | "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
+  image: {
+    alt: string | null;
+    placeholder: string | null;
+    image: {
+      asset: {
+        _id: string;
+        metadata: {
+          dimensions: SanityImageDimensions | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    } | null;
+  } | null;
+} | null;
+
+// Source: lib/sanity/queries.ts
+// Variable: pagesQuery
+// Query: *[_type == "page" && defined(slug.current)]  | order(title asc){  _id,  _updatedAt,  title,  "slug": slug.current,  subtitle,  excerpt}
+export type PagesQueryResult = Array<{
+  _id: string;
+  _updatedAt: string;
+  title: string | null;
+  slug: string | null;
+  subtitle: string | null;
+  excerpt: string | null;
+}>;
+
+// Source: lib/sanity/queries.ts
+// Variable: pageBySlugQuery
+// Query: *[_type == "page" && slug.current == $slug][0]{  _id,  _updatedAt,  title,  "slug": slug.current,  subtitle,  excerpt,  body,  image{    alt,    placeholder,    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }  }}
+export type PageBySlugQueryResult = {
+  _id: string;
+  _updatedAt: string;
+  title: string | null;
+  slug: string | null;
+  subtitle: string | null;
+  excerpt: string | null;
+  body: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "blockquote" | "h2" | "h3" | "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
+  image: {
+    alt: string | null;
+    placeholder: string | null;
+    image: {
+      asset: {
+        _id: string;
+        metadata: {
+          dimensions: SanityImageDimensions | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    } | null;
+  } | null;
+} | null;
 
 // Source: lib/sanity/queries.ts
 // Variable: coordinatorsQuery
@@ -587,9 +897,10 @@ export type ContactSectionQueryResult = {
 
 // Source: lib/sanity/queries.ts
 // Variable: allNewsQuery
-// Query: *[_type == "news" && defined(slug.current)]  | order(publishedAt desc){  _id,  title,  "slug": slug.current,  author,  publishedAt,  excerpt,  body,  image{    alt,    placeholder,    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }  }}
+// Query: *[_type == "news" && defined(slug.current)]  | order(publishedAt desc){  _id,  _updatedAt,  title,  "slug": slug.current,  author,  publishedAt,  excerpt,  body,  image{    alt,    placeholder,    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }  }}
 export type AllNewsQueryResult = Array<{
   _id: string;
+  _updatedAt: string;
   title: string | null;
   slug: string | null;
   author: string | null;
@@ -634,9 +945,10 @@ export type AllNewsQueryResult = Array<{
 
 // Source: lib/sanity/queries.ts
 // Variable: recentNewsQuery
-// Query: *[_type == "news" && defined(slug.current)]  | order(publishedAt desc)[0...$limit]{  _id,  title,  "slug": slug.current,  author,  publishedAt,  excerpt,  body,  image{    alt,    placeholder,    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }  }}
+// Query: *[_type == "news" && defined(slug.current)]  | order(publishedAt desc)[0...$limit]{  _id,  _updatedAt,  title,  "slug": slug.current,  author,  publishedAt,  excerpt,  body,  image{    alt,    placeholder,    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }  }}
 export type RecentNewsQueryResult = Array<{
   _id: string;
+  _updatedAt: string;
   title: string | null;
   slug: string | null;
   author: string | null;
@@ -681,9 +993,10 @@ export type RecentNewsQueryResult = Array<{
 
 // Source: lib/sanity/queries.ts
 // Variable: newsBySlugQuery
-// Query: *[_type == "news" && slug.current == $slug][0]{  _id,  title,  "slug": slug.current,  author,  publishedAt,  excerpt,  body,  image{    alt,    placeholder,    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }  }}
+// Query: *[_type == "news" && slug.current == $slug][0]{  _id,  _updatedAt,  title,  "slug": slug.current,  author,  publishedAt,  excerpt,  body,  image{    alt,    placeholder,    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }  }}
 export type NewsBySlugQueryResult = {
   _id: string;
+  _updatedAt: string;
   title: string | null;
   slug: string | null;
   author: string | null;
@@ -730,15 +1043,19 @@ export type NewsBySlugQueryResult = {
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
+    '*[_type in ["siteSettings", "homePage", "contactSection", "sectionHead",\n    "project", "coordinator", "galleryItem", "news"]]\n  | order(_updatedAt desc)[0]._updatedAt': SiteUpdatedAtQueryResult;
     '*[_type == "siteSettings"][0]{\n  brandName,\n  brandTag,\n  navLinks[]{ label, href, pin },\n  footerText,\n  footerColumns[]{ title, links[]{ label, href } },\n  footerFine\n}': SiteSettingsQueryResult;
     '*[_type == "homePage"][0]{\n  hero{\n    margin,\n    eyebrow,\n    titleLines,\n    squiggleWord,\n    lede,\n    ctas[]{ label, href },\n    polaroid{\n      caption,\n      stamp,\n      image{\n        alt,\n        placeholder,\n        image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n      }\n    }\n  },\n  stats[]{ num, lbl },\n  manifesto{ quote, sig }\n}': HomePageQueryResult;
     '*[_type == "sectionHead"]{\n  key,\n  kicker,\n  title,\n  blurb\n}': SectionHeadsQueryResult;
-    '*[_type == "project"] | order(orderRank){\n  _id,\n  number,\n  status,\n  title,\n  description,\n  pins[]{ label, warm }\n}': ProjectsQueryResult;
+    '*[_type == "project" && defined(slug.current)]\n  | order(orderRank){\n  _id,\n  _updatedAt,\n  number,\n  status,\n  title,\n  "slug": slug.current,\n  description,\n  bioma,\n  responsavel,\n  periodoInicio,\n  periodoFim,\n  financiador,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': ProjectsQueryResult;
+    '*[_type == "project" && slug.current == $slug][0]{\n  _id,\n  _updatedAt,\n  number,\n  status,\n  title,\n  "slug": slug.current,\n  description,\n  bioma,\n  taxonCientifico,\n  taxonPopular,\n  responsavel,\n  periodoInicio,\n  periodoFim,\n  financiador,\n  body,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': ProjectBySlugQueryResult;
+    '*[_type == "page" && defined(slug.current)]\n  | order(title asc){\n  _id,\n  _updatedAt,\n  title,\n  "slug": slug.current,\n  subtitle,\n  excerpt\n}': PagesQueryResult;
+    '*[_type == "page" && slug.current == $slug][0]{\n  _id,\n  _updatedAt,\n  title,\n  "slug": slug.current,\n  subtitle,\n  excerpt,\n  body,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': PageBySlugQueryResult;
     '*[_type == "coordinator"] | order(orderRank){\n  _id,\n  name,\n  role,\n  caption,\n  bio,\n  lines,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': CoordinatorsQueryResult;
     '*[_type == "galleryItem"] | order(orderRank){\n  _id,\n  caption,\n  stamp,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': GalleryQueryResult;
     '*[_type == "contactSection"][0]{\n  heading,\n  body,\n  rows[]{ label, value, note },\n  form{\n    heading,\n    nameLabel, namePlaceholder,\n    orgLabel, orgPlaceholder,\n    emailLabel, emailPlaceholder,\n    subjectLabel, subjectOptions[]{ value, label },\n    messageLabel, messagePlaceholder,\n    note, submitLabel, sendingLabel, sentLabel, sentMessage\n  }\n}': ContactSectionQueryResult;
-    '*[_type == "news" && defined(slug.current)]\n  | order(publishedAt desc){\n  _id,\n  title,\n  "slug": slug.current,\n  author,\n  publishedAt,\n  excerpt,\n  body,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': AllNewsQueryResult;
-    '*[_type == "news" && defined(slug.current)]\n  | order(publishedAt desc)[0...$limit]{\n  _id,\n  title,\n  "slug": slug.current,\n  author,\n  publishedAt,\n  excerpt,\n  body,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': RecentNewsQueryResult;
-    '*[_type == "news" && slug.current == $slug][0]{\n  _id,\n  title,\n  "slug": slug.current,\n  author,\n  publishedAt,\n  excerpt,\n  body,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': NewsBySlugQueryResult;
+    '*[_type == "news" && defined(slug.current)]\n  | order(publishedAt desc){\n  _id,\n  _updatedAt,\n  title,\n  "slug": slug.current,\n  author,\n  publishedAt,\n  excerpt,\n  body,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': AllNewsQueryResult;
+    '*[_type == "news" && defined(slug.current)]\n  | order(publishedAt desc)[0...$limit]{\n  _id,\n  _updatedAt,\n  title,\n  "slug": slug.current,\n  author,\n  publishedAt,\n  excerpt,\n  body,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': RecentNewsQueryResult;
+    '*[_type == "news" && slug.current == $slug][0]{\n  _id,\n  _updatedAt,\n  title,\n  "slug": slug.current,\n  author,\n  publishedAt,\n  excerpt,\n  body,\n  image{\n    alt,\n    placeholder,\n    image{ ..., asset->{ _id, metadata { dimensions, lqip } } }\n  }\n}': NewsBySlugQueryResult;
   }
 }

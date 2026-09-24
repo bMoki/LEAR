@@ -34,6 +34,36 @@
   --rule: rgba(232, 200, 154, 0.18);
 }
 
+/* ===========================================================================
+   Responsividade (ADR 0004)
+   ---------------------------------------------------------------------------
+   O site nasceu com largura fixa de 1280 e nenhuma media query. As regras de
+   adaptação ficam **junto de cada bloco**, e não reunidas no fim do arquivo:
+   o risco declarado no ADR é regressão por componente, então mexer na galeria
+   tem de ser uma leitura só.
+
+   Escrito desktop-first (`max-width`), porque todo o CSS existente já é o
+   desenho de 1280 — assim o estado de referência continua sendo o que se lê
+   sem nenhuma media query em volta.
+
+   As quatro larguras de conferência do ADR e o que cada uma vira. Os limites
+   são **inclusivos** (`max-width: 768px`, e não `767px`) de propósito: 480 e
+   768 são larguras de aparelho, não de faixa. Se 480 renderizasse o layout de
+   tablet, conferir em 480 não diria nada sobre celular — que é o motivo de o
+   ADR listar essas larguras.
+
+     1280   desenho de referência, intocado
+     1024   assinatura da marca encolhe, decoração de margem sai, feed em duas
+      768   as malhas de duas e três colunas colapsam; menu vira sanfona
+      480   coluna única em tudo
+
+   A escala tipográfica dos títulos usa `clamp(min, Xvw, max)` em vez de um
+   valor por faixa: o coeficiente em `vw` é escolhido para o máximo ser
+   atingido **antes** de 1280, então o desktop de referência continua exato.
+   Tipo de dentro de componente (cartão, polaroide) não usa `vw` — a largura
+   dele depende de quantas colunas a malha tem, não da tela.
+   =========================================================================== */
+
 * {
   box-sizing: border-box;
 }
@@ -68,12 +98,33 @@ body::before {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.4  0 0 0 0 0.35  0 0 0 0 0.2  0 0 0 0.15 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
 }
 
+/* O respiro lateral é o que impede o texto de encostar na borda quando a tela
+   fica menor que o `max-width`. Ele também é a folga que a decoração girada
+   (carimbos das polaroides, cartões inclinados) usa para não estourar. */
 .page {
   position: relative;
   z-index: 3;
   max-width: 1180px;
   margin: 0 auto;
   padding: 0 60px;
+}
+@media (max-width: 1024px) {
+  .page {
+    padding: 0 40px;
+  }
+}
+@media (max-width: 768px) {
+  body {
+    font-size: 17px;
+  }
+  .page {
+    padding: 0 32px;
+  }
+}
+@media (max-width: 480px) {
+  .page {
+    padding: 0 20px;
+  }
 }
 
 /* ===== Top bar ===== */
@@ -142,6 +193,105 @@ body::before {
   color: #fff;
 }
 
+/* O botão da sanfona só existe abaixo de 768 — acima disso os cinco links
+   cabem na barra e um menu escondido só atrapalharia (ver `NavMenu.tsx`). */
+.nav-toggle {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .topbar {
+    padding: 24px 40px 20px;
+  }
+  /* A assinatura por extenso é o que estoura a barra primeiro; a sigla sozinha
+     continua identificando o laboratório, e ela repete no rodapé. */
+  .wordmark .tag {
+    display: none;
+  }
+  .nav {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    padding: 18px 32px 16px;
+  }
+  .wordmark .lear {
+    font-size: 24px;
+    letter-spacing: 0.26em;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-on-dark);
+    background: transparent;
+    border: 1px solid var(--rule);
+    padding: 9px 13px;
+    cursor: pointer;
+  }
+  .nav-toggle::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-right: 1.5px solid var(--color-carrot);
+    border-bottom: 1.5px solid var(--color-carrot);
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 0.2s;
+  }
+  .nav-toggle[aria-expanded="true"]::after {
+    transform: translateY(1px) rotate(-135deg);
+  }
+
+  /* O painel cai **por baixo** da barra em vez de empilhar dentro dela: a
+     barra é `sticky`, e uma barra de ~120px de altura comeria a tela do
+     celular em toda rolagem. */
+  .nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 4px 32px 20px;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--rule);
+  }
+  .nav--open {
+    display: flex;
+  }
+  .nav a {
+    padding: 14px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .nav .pin {
+    margin-top: 16px;
+    padding: 13px 14px;
+    text-align: center;
+    border-top: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar {
+    padding: 16px 20px 14px;
+  }
+  .wordmark .lear {
+    font-size: 21px;
+  }
+  .nav {
+    padding: 4px 20px 18px;
+  }
+}
+
 /* ===== HERO ===== */
 .hero {
   display: grid;
@@ -168,10 +318,13 @@ body::before {
   height: 1px;
   background: var(--color-carrot);
 }
+/* As linhas do título vêm do CMS com `<br>` entre elas — não reflui sozinho,
+   então o tamanho é que tem de ceder. 8.5vw atinge os 108px em ~1271px de
+   largura, deixando o desenho de 1280 exato. */
 .hero h1 {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: 108px;
+  font-size: clamp(28px, 8.5vw, 108px);
   line-height: 0.96;
   letter-spacing: -0.025em;
   color: var(--color-on-dark);
@@ -187,13 +340,15 @@ body::before {
   position: relative;
   display: inline-block;
 }
+/* Em `em`, e não em `px`: o traço acompanha o título que agora encolhe.
+   0.056em × 108px = 6px — o mesmo valor de antes no desenho de referência. */
 .hero h1 .squiggle::after {
   content: "";
   position: absolute;
   left: -4%;
   right: -2%;
-  bottom: 6px;
-  height: 6px;
+  bottom: 0.056em;
+  height: 0.056em;
   background: var(--color-carrot);
   opacity: 0.4;
   border-radius: 1px;
@@ -201,7 +356,7 @@ body::before {
 }
 .hero-lede {
   font-family: var(--font-serif);
-  font-size: 21px;
+  font-size: clamp(17px, 1.7vw, 21px);
   line-height: 1.55;
   color: var(--color-on-dark-soft);
   margin: 0 0 36px;
@@ -213,6 +368,7 @@ body::before {
 }
 .hero-cta {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   align-items: center;
 }
@@ -293,8 +449,11 @@ body::before {
   transform: rotate(8deg);
 }
 
+/* `max-width` em vez de `width`: a coluna da direita do hero encolhe junto com
+   a tela, e 380px fixos estouravam a malha antes mesmo de 1024. */
 .hero-polaroid {
-  width: 380px;
+  width: 100%;
+  max-width: 380px;
   justify-self: end;
   transform: rotate(2deg);
 }
@@ -317,6 +476,41 @@ body::before {
   transform-origin: left top;
   letter-spacing: 0.04em;
   white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+  .hero {
+    gap: 40px;
+    padding: 56px 0 50px;
+  }
+  /* Decoração em coordenada fixa: girada, ela ocupa 26px à esquerda do hero, e
+     abaixo de 1024 o respiro lateral da página não cobre mais isso — passaria
+     a empurrar rolagem horizontal. Decoração sai, conteúdo fica. */
+  .hero-margin {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Empilhado, o texto vem **antes** da polaroide: o `<h1>` é o assunto da
+     página e precisa ser a primeira coisa lida no celular — e uma foto grande
+     no topo atrasaria a maior pintura de conteúdo. A ordem do HTML já é essa,
+     então basta a malha virar uma coluna. */
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding: 40px 0 44px;
+  }
+  .hero-polaroid {
+    justify-self: start;
+    max-width: 320px;
+  }
+  .hero-eyebrow {
+    margin-bottom: 18px;
+  }
+  .hero h1 {
+    margin-bottom: 24px;
+  }
 }
 
 /* ===== Stats strip ===== */
@@ -360,6 +554,32 @@ body::before {
   margin-top: 8px;
 }
 
+@media (max-width: 768px) {
+  /* Duas colunas. Em quatro, “4 biomas” a 42px não cabe na célula e vaza para
+     fora da faixa. O `border-left` deixa de valer para o primeiro de cada
+     linha, não só para o primeiro de todos. */
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 22px;
+  }
+  .stat:nth-child(2n + 1) {
+    border-left: none;
+    padding-left: 0;
+  }
+  .stat .num {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stat .num {
+    font-size: 30px;
+  }
+  .stat {
+    padding: 0 12px;
+  }
+}
+
 /* ===== Section pattern ===== */
 .section {
   padding: 100px 0 30px;
@@ -382,17 +602,20 @@ body::before {
   color: var(--color-carrot);
   margin-bottom: 14px;
 }
-.section-head h2 {
+/* `h1` e `h2` no mesmo seletor: o `SectionHead` emite um ou outro conforme a
+   seção seja parte da home ou a própria página (ver `SectionHead.tsx`). O nível
+   do título é semântica, não desenho — os dois têm o mesmo. */
+.section-head :is(h1, h2) {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: 64px;
+  font-size: clamp(30px, 5.1vw, 64px);
   line-height: 0.98;
   letter-spacing: -0.02em;
   color: var(--color-on-dark);
   margin: 0;
   font-variation-settings: "opsz" 144;
 }
-.section-head h2 em {
+.section-head :is(h1, h2) em {
   font-style: italic;
   color: var(--color-carrot);
 }
@@ -406,6 +629,60 @@ body::before {
   text-align: right;
 }
 
+/* O Manifesto entra logo depois do Hero e pede menos ar em cima do que uma
+   seção numerada. Era um `style` embutido no componente, que nenhuma media
+   query conseguiria alcançar. */
+.section--manifesto {
+  padding-top: 80px;
+}
+
+@media (max-width: 1024px) {
+  .section {
+    padding: 72px 0 26px;
+  }
+  .section--manifesto {
+    padding-top: 56px;
+  }
+  .section-head {
+    gap: 30px;
+    margin-bottom: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 56px 0 20px;
+  }
+  .section--manifesto {
+    padding-top: 40px;
+  }
+  /* O terceiro trilho (`auto 1fr auto`) existia para jogar o blurb na margem
+     direita. Empilhado ele vira só um parágrafo abaixo do título — alinhado à
+     esquerda, porque texto justificado à direita em coluna estreita cansa. */
+  .section-head {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    align-items: start;
+    margin-bottom: 32px;
+    padding-bottom: 18px;
+  }
+  .section-head .blurb {
+    text-align: left;
+    max-width: 52ch;
+    font-size: 16px;
+  }
+  /* O trilho vazio do meio, que só servia de espaçador na malha de três. */
+  .section-head > div:nth-child(2):empty {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 44px 0 16px;
+  }
+}
+
 /* ===== Manifesto ===== */
 .manifesto {
   padding: 60px 0 40px;
@@ -415,7 +692,7 @@ body::before {
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 400;
-  font-size: 34px;
+  font-size: clamp(20px, 2.7vw, 34px);
   line-height: 1.3;
   color: var(--color-on-dark);
   max-width: 880px;
@@ -426,15 +703,17 @@ body::before {
   font-style: normal;
   color: var(--color-carrot);
 }
+/* A margem negativa que puxa a citação para debaixo das aspas vale -0.25em —
+   os mesmos -30px de antes a 120px, agora acompanhando o tamanho. */
 .manifesto .quote-mark {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 120px;
+  font-size: clamp(64px, 9.5vw, 120px);
   line-height: 1;
   color: var(--color-carrot);
   opacity: 0.5;
   display: block;
-  margin-bottom: -30px;
+  margin-bottom: -0.25em;
   font-variation-settings: "opsz" 144;
 }
 .manifesto .sig {
@@ -449,6 +728,18 @@ body::before {
   content: "— ";
 }
 
+@media (max-width: 768px) {
+  .manifesto {
+    padding: 32px 0 24px;
+    /* Citação longa centralizada em coluna estreita fica difícil de acompanhar;
+       à esquerda o olho reencontra o começo da linha. */
+    text-align: left;
+  }
+  .manifesto p {
+    margin: 0;
+  }
+}
+
 /* ===== Projects — paper cards ===== */
 .projects {
   display: grid;
@@ -456,8 +747,13 @@ body::before {
   gap: 40px 36px;
   padding: 20px 0;
 }
+/* O cartão virou link para `/projetos/<slug>` (ADR 0005): daí `display: block`
+   e `text-decoration: none`, que um `<a>` traria por padrão. O desenho é o
+   mesmo de antes. */
 .card {
   position: relative;
+  display: block;
+  text-decoration: none;
   padding: 36px 32px 30px;
   font-family: var(--font-serif);
   color: var(--color-ink);
@@ -526,6 +822,14 @@ body::before {
   font-weight: 400;
   color: var(--color-carrot-deep);
 }
+/* Mesmo sinal de clique que o cartão de notícia já dava: o título muda de cor. */
+.card:hover h3,
+.card:hover h3 em {
+  color: var(--color-carrot-deep);
+}
+.card:hover .corner-doodle {
+  color: var(--color-carrot-deep);
+}
 .card .desc {
   font-family: var(--font-serif);
   font-size: 17px;
@@ -574,6 +878,48 @@ body::before {
   background-color: var(--color-peach);
   transform: rotate(-0.6deg);
   margin-top: 32px;
+}
+
+@media (max-width: 1024px) {
+  .projects {
+    gap: 32px 28px;
+  }
+  .card {
+    padding: 30px 26px 26px;
+  }
+}
+
+@media (max-width: 768px) {
+  .projects {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  /* O desencontro vertical (`margin-top` alternado) era o que dava o ar de
+     papéis jogados na mesa em duas colunas. Numa coluna só ele vira buraco
+     irregular entre cartões, então some — a inclinação, que é o que faz a
+     graça, fica. */
+  .card.c-2,
+  .card.c-3,
+  .card.c-4 {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 26px 20px 22px;
+  }
+  .card h3 {
+    font-size: 26px;
+  }
+  .card .desc {
+    font-size: 16px;
+  }
+  .card .corner-doodle {
+    font-size: 26px;
+    top: 10px;
+    right: 14px;
+  }
 }
 
 /* ===== Coordinators ===== */
@@ -641,6 +987,34 @@ body::before {
   font-style: normal;
   color: var(--color-on-dark);
   font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .coords {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px 24px;
+  }
+  .coord-polaroid .cap {
+    font-size: 20px;
+  }
+  .coord-name {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Em coluna única a polaroide para de ser miniatura e passa a valer como
+     retrato: sai o `max-width` de 280px que a segurava dentro da malha de três. */
+  .coords {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .coord-polaroid {
+    max-width: none;
+  }
+  .coord-polaroid .cap {
+    font-size: 22px;
+  }
 }
 
 /* ===== Gallery ===== */
@@ -735,6 +1109,31 @@ body::before {
   transform: rotate(1.3deg);
   margin-top: 20px;
   background: var(--color-warm);
+}
+
+/* A malha de 12 colunas é a mais densa do site. Ela não some nas telas
+   menores — muda só quantas colunas cada polaroide ocupa, então o desencontro
+   das margens continua funcionando em duas por linha. */
+@media (max-width: 768px) {
+  .gallery {
+    gap: 28px 20px;
+  }
+  .poly-card {
+    grid-column: span 6;
+  }
+  .poly-card .cap {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .poly-card {
+    grid-column: span 12;
+    margin-top: 0;
+  }
+  .poly-card .cap {
+    font-size: 23px;
+  }
 }
 
 /* ===== Image slot — placeholder rendering for production ===== */
@@ -833,6 +1232,34 @@ body::before {
   color: var(--color-on-dark-faint);
   margin-top: 4px;
   text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  /* Texto em cima, formulário embaixo: quem chega pelo menu quer o endereço e
+     o e-mail primeiro; quem vai escrever rola até o cartão. */
+  .contact-wrap {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .contact-row {
+    grid-template-columns: 120px 1fr;
+    gap: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-info h3 {
+    font-size: 32px;
+  }
+  /* Abaixo de 480 a coluna de rótulos come metade da linha. O rótulo passa a
+     ser uma etiqueta acima do valor. */
+  .contact-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .contact-label {
+    padding-top: 0;
+  }
 }
 
 /* form as a paper card */
@@ -966,6 +1393,25 @@ body::before {
   color: var(--color-cream);
 }
 
+@media (max-width: 480px) {
+  .form-card {
+    padding: 26px 20px;
+  }
+  /* Nome e organização lado a lado viram dois campos de ~180px — largos
+     demais para o rótulo, estreitos demais para o que se digita. */
+  .field-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .form-foot {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .form-foot button {
+    width: 100%;
+  }
+}
+
 /* Retorno do envio. Fica vazio até haver o que dizer — sem `min-height`, para
    o cartão não reservar um espaço em branco permanente. */
 .form-feedback:not(:empty) {
@@ -1052,6 +1498,34 @@ body::before {
   color: var(--color-on-dark-faint);
 }
 
+@media (max-width: 768px) {
+  .footer {
+    grid-template-columns: 1fr 1fr;
+    margin-top: 72px;
+    gap: 30px 24px;
+  }
+  /* O texto da marca é o dobro do resto: ocupa a linha inteira em vez de
+     apertar as três colunas de links. */
+  .footer-brand {
+    grid-column: 1 / -1;
+    max-width: none;
+  }
+  /* `space-between` com três itens em duas linhas deixa buraco no meio. */
+  .footer .fine {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    grid-template-columns: 1fr;
+    margin-top: 56px;
+    padding: 34px 0 40px;
+  }
+}
+
 /* ===== News section (home + archive) ===== */
 .news-grid {
   display: grid;
@@ -1113,6 +1587,35 @@ body::before {
   text-align: right;
 }
 
+/* O feed cede uma coluna antes das outras malhas: o cartão de notícia carrega
+   um título de verdade, e três colunas abaixo de 1024 dão ~215px de largura —
+   miniatura pequena demais e título quebrado em quatro linhas. A galeria, que
+   é só foto, aguenta as três até 768. */
+@media (max-width: 1024px) {
+  .news-grid,
+  .news-grid--full {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .news-grid,
+  .news-grid--full {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .news-grid,
+  .news-grid--full {
+    grid-template-columns: 1fr;
+  }
+  .news-footer {
+    text-align: left;
+  }
+}
+
 /* ===== News article detail ===== */
 .news-article {
   max-width: 720px;
@@ -1131,7 +1634,7 @@ body::before {
 .news-article-title {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: 54px;
+  font-size: clamp(30px, 4.3vw, 54px);
   line-height: 1.02;
   letter-spacing: -0.02em;
   color: var(--color-on-dark);
@@ -1158,16 +1661,16 @@ body::before {
   width: 100%;
   height: 100%;
 }
-.news-article-body {
+.article-body {
   font-family: var(--font-serif);
   font-size: 19px;
   line-height: 1.65;
   color: var(--color-on-dark-soft);
 }
-.news-article-body p {
+.article-body p {
   margin: 0 0 1.4em;
 }
-.news-article-body h2 {
+.article-body h2 {
   font-family: var(--font-serif);
   font-weight: 500;
   font-size: 30px;
@@ -1177,7 +1680,7 @@ body::before {
   letter-spacing: -0.01em;
   font-variation-settings: "opsz" 144;
 }
-.news-article-body h3 {
+.article-body h3 {
   font-family: var(--font-serif);
   font-weight: 500;
   font-size: 23px;
@@ -1185,21 +1688,166 @@ body::before {
   margin: 1.4em 0 0.5em;
   font-variation-settings: "opsz" 144;
 }
-.news-article-body em {
+.article-body em {
   font-style: italic;
   color: var(--color-on-dark);
 }
-.news-article-body strong {
+.article-body strong {
   font-weight: 500;
   color: var(--color-on-dark);
 }
-.news-article-body ul,
-.news-article-body ol {
+.article-body ul,
+.article-body ol {
   margin: 0 0 1.4em;
   padding-left: 1.5em;
 }
-.news-article-body li {
+.article-body li {
   margin-bottom: 0.4em;
+}
+
+@media (max-width: 768px) {
+  .news-article {
+    padding: 24px 0 64px;
+  }
+  .news-article-byline {
+    padding-bottom: 24px;
+    margin-bottom: 28px;
+  }
+  .news-article-img {
+    margin-bottom: 32px;
+  }
+  .article-body {
+    font-size: 18px;
+  }
+  .article-body h2 {
+    font-size: 26px;
+  }
+  .article-body h3 {
+    font-size: 21px;
+  }
+}
+
+/* ===== “Outras notícias”, ao pé do artigo ===== */
+.related-news {
+  border-top: 1px solid var(--rule);
+  padding-top: 40px;
+  margin-top: 20px;
+}
+.related-news-head {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-carrot);
+  margin: 0;
+}
+.related-news .news-grid {
+  padding-top: 24px;
+}
+
+/* ===== Project detail ===== */
+/* Mesma coluna de leitura da notícia. O corpo usa `.article-body`, que as duas
+   rotas compartilham. */
+.project-article {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 0 100px;
+}
+.project-article-kicker {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-carrot);
+  margin-bottom: 20px;
+}
+.project-article-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(30px, 4.3vw, 54px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--color-on-dark);
+  margin: 0 0 20px;
+  font-variation-settings: "opsz" 144;
+}
+.project-article-title em {
+  font-style: italic;
+  color: var(--color-carrot);
+}
+.project-article-lede {
+  font-family: var(--font-serif);
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--color-on-dark-soft);
+  margin: 0 0 40px;
+}
+.project-article-img {
+  aspect-ratio: 16 / 9;
+  background: var(--color-bg-3);
+  margin-bottom: 44px;
+  overflow: hidden;
+}
+.project-article-img .image-slot {
+  width: 100%;
+  height: 100%;
+}
+
+/* A ficha. Sem o corpo escrito, é ela que carrega a página — daí a régua entre
+   as linhas, que a faz ler como caderno de campo e não como sobra de layout. */
+.project-facts {
+  margin: 0 0 48px;
+}
+.project-fact {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 18px;
+  padding: 16px 0;
+  border-top: 1px solid var(--rule);
+}
+.project-fact:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+.project-facts dt {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-on-dark-faint);
+  padding-top: 4px;
+}
+.project-facts dd {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.45;
+  color: var(--color-on-dark);
+}
+
+@media (max-width: 768px) {
+  .project-article {
+    padding: 24px 0 64px;
+  }
+  .project-article-lede {
+    font-size: 19px;
+    margin-bottom: 32px;
+  }
+  .project-article-img {
+    margin-bottom: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mesma decisão da linha de contato: abaixo de 480 a coluna de rótulos come
+     metade da linha, e o rótulo vira etiqueta acima do valor. */
+  .project-fact {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .project-facts dt {
+    padding-top: 0;
+  }
 }
 
 .divider {

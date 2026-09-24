@@ -18,7 +18,11 @@ export {
   getHero,
   getManifesto,
   getNav,
+  getPageBySlug,
+  getPages,
+  getProjectBySlug,
   getProjects,
   getSectionHead,
+  getSiteLastModified,
   getStats,
 } from "./source.cms";

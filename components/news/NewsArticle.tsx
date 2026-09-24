@@ -23,7 +23,7 @@ export function NewsArticle({ item }: Props) {
       <div className="news-article-img">
         <ImageSlot {...item.image} />
       </div>
-      <div className="news-article-body">
+      <div className="article-body">
         <PortableBody value={item.body} />
       </div>
     </article>

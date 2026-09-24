@@ -10,9 +10,13 @@ import { siteSettings } from "./singletons/siteSettings";
 
 import { coordinator } from "./documents/coordinator";
 import { galleryItem } from "./documents/galleryItem";
+import { locality } from "./documents/locality";
 import { news } from "./documents/news";
+import { page } from "./documents/page";
 import { project } from "./documents/project";
+import { publication } from "./documents/publication";
 import { sectionHead } from "./documents/sectionHead";
+import { species } from "./documents/species";
 
 /** Documentos que só existem uma vez — o Studio esconde o botão “criar novo”
  * e a ação de excluir para eles (ver `sanity.config.ts`). */
@@ -38,4 +42,9 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   coordinator,
   galleryItem,
   news,
+  // acervo importado do site antigo (ADR 0006)
+  species,
+  locality,
+  publication,
+  page,
 ];
