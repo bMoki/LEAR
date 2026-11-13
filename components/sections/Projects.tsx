@@ -3,6 +3,10 @@ import { SectionHead } from "./SectionHead";
 import { ProjectCard } from "./ProjectCard";
 import { getProjects, getSectionHead } from "@/lib/content";
 
+/** Quantos projetos a home mostra; o resto fica em `/projetos`. Par, porque a
+ * grade é de duas colunas. */
+const HOME_PROJECTS = 6;
+
 export async function Projects() {
   const [head, projects] = await Promise.all([getSectionHead("projects"), getProjects()]);
 
@@ -11,7 +15,7 @@ export async function Projects() {
       <SectionHead kicker={head.kicker} title={head.title} blurb={head.blurb} />
 
       <div className="projects">
-        {projects.map((project) => (
+        {projects.slice(0, HOME_PROJECTS).map((project) => (
           <ProjectCard key={project.slug} project={project} />
         ))}
       </div>

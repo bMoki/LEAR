@@ -947,8 +947,13 @@ body::before {
 .coord-polaroid .pic {
   aspect-ratio: 4 / 5;
 }
+/* Uma linha só: a legenda é presa ao rodapé do papel, e a segunda linha
+   subiria por cima da foto. Legenda longa demais vira reticências. */
 .coord-polaroid .cap {
   font-size: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .coord-name {
   font-family: var(--font-serif);
@@ -975,18 +980,289 @@ body::before {
   color: var(--color-on-dark-soft);
   margin: 0 0 16px;
 }
-.coord-foot {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 14px;
-  color: var(--color-on-dark-faint);
-  padding-top: 12px;
-  border-top: 1px dashed var(--rule);
+/* O card inteiro abre o modal (CoordinatorList). */
+.coord {
+  transition: transform 0.3s ease;
 }
-.coord-foot strong {
-  font-style: normal;
-  color: var(--color-on-dark);
-  font-weight: 500;
+.coord:hover,
+.coord:has(.coord-trigger:focus-visible) {
+  transform: scale(1.03);
+}
+.coord-trigger {
+  all: unset;
+  cursor: pointer;
+}
+.coord-trigger::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.coord-trigger:focus-visible {
+  outline: none;
+}
+.coord:has(.coord-trigger:focus-visible) {
+  outline: 1.5px solid var(--color-carrot);
+  outline-offset: 12px;
+}
+
+/* ----- Modal: polaroide solta + etiqueta de coleção -----
+   Sem painel: a foto flutua sobre o fundo escurecido e a etiqueta, presa a ela
+   como as de exemplar de museu, sai de trás dela. O `<dialog>` é só o palco.
+   Serve aos profissionais e à galeria (usePhotoModal). */
+.photo-modal {
+  --photo-w: 330px;
+  width: min(1000px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  /* O reset zera a margem de tudo, e é ela que centraliza o `<dialog>`. */
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.photo-modal::backdrop {
+  background: rgba(6, 10, 7, 0.82);
+}
+/* Sem isto a página rola por baixo do modal. */
+html:has(.photo-modal[open]) {
+  overflow: hidden;
+}
+.photo-modal-body {
+  display: grid;
+  grid-template-columns: var(--photo-w) minmax(0, 1fr);
+  align-items: center;
+  padding: 24px 8px;
+}
+.photo-modal-photo {
+  position: relative;
+  z-index: 2;
+  max-width: none;
+  margin: 0;
+  transform: rotate(-2deg);
+  view-transition-name: modal-photo;
+}
+
+/* A etiqueta mora atrás da foto: começa encolhida a ponto de caber inteira
+   por trás da polaroide e cresce enquanto desliza para fora. Um recorte não
+   serviria — ela é mais alta que a foto, e a borda do corte ficaria à vista
+   acima e abaixo dela. Em repouso, a ponta continua `--tuck` por baixo. */
+.specimen-tag {
+  --tuck: 48px;
+  --from: translateX(-38%) scale(0.45);
+  position: relative;
+  z-index: 1;
+  margin-left: calc(-1 * var(--tuck));
+  transform-origin: left center;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  max-height: calc(100dvh - 120px);
+  background: var(--color-cream);
+  color: var(--color-ink);
+  padding: 22px 28px 10px calc(var(--tuck) + 52px);
+  border-radius: 2px 14px 14px 2px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  animation: tag-out 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) 0.35s both;
+}
+/* O furo do barbante, logo depois da borda da foto. */
+.specimen-tag::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--tuck) + 18px);
+  top: 32px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: inset 0 0 0 3px var(--color-kraft);
+}
+/* O barbante some por baixo da foto. */
+.specimen-tag::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 38px;
+  width: calc(var(--tuck) + 20px);
+  height: 2px;
+  background: var(--color-kraft);
+  transform: rotate(-4deg);
+  transform-origin: right;
+}
+.photo-modal[data-closing] .specimen-tag {
+  animation: tag-in 0.26s ease-in both;
+}
+@keyframes tag-out {
+  from {
+    transform: var(--from);
+  }
+}
+@keyframes tag-in {
+  to {
+    transform: var(--from);
+  }
+}
+
+.specimen-tag-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+  border-bottom: 1.5px solid var(--color-ink);
+  padding-bottom: 10px;
+}
+.specimen-tag dl {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  margin: 0;
+}
+.specimen-tag dt,
+.specimen-tag dd {
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px dashed rgba(90, 98, 66, 0.4);
+}
+.specimen-tag dt {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+  padding-top: 14px;
+}
+.specimen-tag dd {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.specimen-tag .specimen-tag-name {
+  font-size: 26px;
+  line-height: 1.1;
+  font-variation-settings: "opsz" 144;
+  text-wrap: balance;
+}
+.specimen-tag .specimen-tag-role {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-carrot-deep);
+  padding-top: 14px;
+}
+.specimen-tag-notes {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-soft) transparent;
+  padding: 14px 0 28px;
+  /* A última linha visível dissolve: avisa que há mais texto rolando. */
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent);
+}
+.specimen-tag-notes:focus-visible {
+  outline: 1px dashed var(--color-ink-soft);
+  outline-offset: 2px;
+}
+.specimen-tag-notes h4 {
+  margin: 0 0 6px;
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+.specimen-tag-notes p {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 62ch;
+}
+
+.photo-modal-close {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  right: calc(16px + env(safe-area-inset-right, 0px));
+  z-index: 3;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--color-on-dark-soft);
+  background: none;
+  border: 0;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.photo-modal-close:hover {
+  color: var(--color-carrot);
+}
+
+::view-transition-group(modal-photo) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Em coluna, a etiqueta sai por baixo da foto em vez de pelo lado. */
+@media (max-width: 768px) {
+  .photo-modal {
+    --photo-w: min(240px, 70vw);
+    width: calc(100vw - 24px);
+  }
+  .photo-modal-body {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    padding: 56px 0 16px;
+  }
+  .photo-modal-photo {
+    width: var(--photo-w);
+  }
+  .photo-modal-photo .cap {
+    font-size: 22px;
+  }
+  /* A altura fica presa à tela, com as notas rolando por dentro: só assim
+     a etiqueta encolhida cabe atrás da foto no começo da animação. */
+  .specimen-tag {
+    --from: translateY(-42%) scale(0.5);
+    width: 100%;
+    margin: calc(-1 * var(--tuck)) 0 0;
+    max-height: max(280px, calc(100dvh - 400px));
+    padding: calc(var(--tuck) + 20px) 18px 0;
+    border-radius: 2px 2px 14px 14px;
+    transform-origin: center top;
+  }
+  .specimen-tag::before {
+    left: 50%;
+    top: calc(var(--tuck) + 8px);
+    transform: translateX(-50%);
+  }
+  .specimen-tag::after {
+    display: none;
+  }
+  .specimen-tag dl {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+  .specimen-tag .specimen-tag-name {
+    font-size: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coord {
+    transition: none;
+  }
+  .coord:hover {
+    transform: none;
+  }
+  .specimen-tag,
+  .photo-modal[data-closing] .specimen-tag {
+    animation: none;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1014,6 +1290,46 @@ body::before {
   }
   .coord-polaroid .cap {
     font-size: 22px;
+  }
+}
+
+/* ===== Texto cortado em três linhas e lista que abre (Expandable) ===== */
+.clamp {
+  max-height: calc(3 * 1lh);
+  overflow: hidden;
+  transition: max-height 0.45s ease;
+}
+/* A última linha some aos poucos: sem isso o corte parece erro de layout. */
+.clamp[data-overflow]:not([data-open]) {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1lh), transparent);
+}
+.expandable {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.6s ease;
+}
+.expandable[data-open] {
+  grid-template-rows: 1fr;
+}
+/* A margem negativa dá folga lateral às polaroides inclinadas, que o
+   `overflow: hidden` da animação cortaria rente. */
+.expandable-inner {
+  min-height: 0;
+  overflow: hidden;
+  margin: 0 -16px;
+  padding: 0 16px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.expandable[data-open] .expandable-inner {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clamp,
+  .expandable,
+  .expandable-inner {
+    transition: none;
   }
 }
 
@@ -1133,6 +1449,87 @@ body::before {
   }
   .poly-card .cap {
     font-size: 23px;
+  }
+}
+
+/* O card inteiro abre o modal (GalleryList). `scale`, e não `transform`, para
+   não desfazer a inclinação de cada variante. */
+.gallery .poly-card {
+  transition: scale 0.3s ease;
+}
+.gallery .poly-card:hover,
+.gallery .poly-card:has(.poly-trigger:focus-visible) {
+  scale: 1.03;
+}
+.poly-trigger {
+  all: unset;
+  cursor: pointer;
+}
+.poly-trigger::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+.gallery .poly-card:has(.poly-trigger:focus-visible) {
+  outline: 1.5px solid var(--color-carrot);
+  outline-offset: 8px;
+}
+/* As que chegam num "ver mais" entram uma depois da outra. */
+.gallery .poly-card[data-new] {
+  animation: poly-in 0.5s ease calc(var(--i) * 40ms) both;
+}
+@keyframes poly-in {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+  }
+}
+.gallery-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.gallery-count {
+  margin-right: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-on-dark-soft);
+}
+/* A foto vem na proporção original, maior que a do profissional: é ela o
+   assunto aqui. */
+.gallery-modal {
+  --photo-w: 480px;
+}
+.gallery-modal .specimen-tag dl {
+  grid-template-columns: 124px minmax(0, 1fr);
+}
+/* Na foto, só o nome científico, numa linha: o nome popular está na etiqueta,
+   e a segunda linha subiria por cima da imagem. */
+.gallery .poly-card .cap,
+.gallery-modal .photo-modal-photo .cap {
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 768px) {
+  /* A folga dos lados é para o carimbo, que sai da borda da foto. */
+  .gallery-modal {
+    --photo-w: min(340px, calc(100vw - 72px));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gallery .poly-card {
+    transition: none;
+  }
+  .gallery .poly-card:hover {
+    scale: none;
+  }
+  .gallery .poly-card[data-new] {
+    animation: none;
   }
 }
 
