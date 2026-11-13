@@ -947,8 +947,13 @@ body::before {
 .coord-polaroid .pic {
   aspect-ratio: 4 / 5;
 }
+/* Uma linha só: a legenda é presa ao rodapé do papel, e a segunda linha
+   subiria por cima da foto. Legenda longa demais vira reticências. */
 .coord-polaroid .cap {
   font-size: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .coord-name {
   font-family: var(--font-serif);
@@ -974,6 +979,113 @@ body::before {
   line-height: 1.55;
   color: var(--color-on-dark-soft);
   margin: 0 0 16px;
+}
+/* O card inteiro abre o modal (CoordinatorList). */
+.coord {
+  transition: transform 0.3s ease;
+}
+.coord:hover,
+.coord:has(.coord-trigger:focus-visible) {
+  transform: scale(1.03);
+}
+.coord-trigger {
+  all: unset;
+  cursor: pointer;
+}
+.coord-trigger::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.coord-trigger:focus-visible {
+  outline: none;
+}
+.coord:has(.coord-trigger:focus-visible) {
+  outline: 1.5px solid var(--color-carrot);
+  outline-offset: 12px;
+}
+
+/* ----- Modal ----- */
+.coord-modal {
+  width: min(920px, calc(100vw - 32px));
+  max-height: calc(100dvh - 48px);
+  /* O reset zera a margem de tudo, e é ela que centraliza o `<dialog>`. */
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--rule);
+  background: var(--color-bg-2);
+  color: var(--color-on-dark);
+  overflow: auto;
+  overscroll-behavior: contain;
+  view-transition-name: coord-card;
+}
+.coord-modal::backdrop {
+  background: rgba(6, 10, 7, 0.78);
+}
+/* Sem isto a página rola por baixo do modal. */
+html:has(.coord-modal[open]) {
+  overflow: hidden;
+}
+.coord-modal-body {
+  position: relative;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 44px;
+  padding: 48px;
+  align-items: start;
+}
+.coord-modal .coord-polaroid {
+  max-width: none;
+  margin: 0;
+  transform: rotate(-1.5deg);
+  view-transition-name: coord-photo;
+}
+.coord-modal .coord-bio {
+  font-size: 17px;
+  margin-bottom: 24px;
+}
+.coord-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 30px;
+  line-height: 1;
+  color: var(--color-on-dark-soft);
+  background: none;
+  border: 0;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.coord-modal-close:hover {
+  color: var(--color-carrot);
+}
+
+::view-transition-group(coord-card),
+::view-transition-group(coord-photo) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (max-width: 768px) {
+  .coord-modal-body {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 40px 24px 28px;
+  }
+  .coord-modal .coord-polaroid {
+    max-width: 280px;
+    margin: 0 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coord {
+    transition: none;
+  }
+  .coord:hover {
+    transform: none;
+  }
 }
 .coord-foot {
   font-family: var(--font-serif);
@@ -1014,6 +1126,46 @@ body::before {
   }
   .coord-polaroid .cap {
     font-size: 22px;
+  }
+}
+
+/* ===== Texto cortado em três linhas e lista que abre (Expandable) ===== */
+.clamp {
+  max-height: calc(3 * 1lh);
+  overflow: hidden;
+  transition: max-height 0.45s ease;
+}
+/* A última linha some aos poucos: sem isso o corte parece erro de layout. */
+.clamp[data-overflow]:not([data-open]) {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1lh), transparent);
+}
+.expandable {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.6s ease;
+}
+.expandable[data-open] {
+  grid-template-rows: 1fr;
+}
+/* A margem negativa dá folga lateral às polaroides inclinadas, que o
+   `overflow: hidden` da animação cortaria rente. */
+.expandable-inner {
+  min-height: 0;
+  overflow: hidden;
+  margin: 0 -16px;
+  padding: 0 16px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.expandable[data-open] .expandable-inner {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clamp,
+  .expandable,
+  .expandable-inner {
+    transition: none;
   }
 }
 

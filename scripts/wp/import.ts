@@ -34,6 +34,22 @@ import { compat } from "./compat";
 import type { Conteudo, Imagem } from "./extract";
 import { moldura, PENDENTE_DE_REVISAO } from "./moldura";
 
+/**
+ * Primeiro e último nome, para a legenda manuscrita da polaroide: ela fica
+ * presa no rodapé do papel, e uma segunda linha sobe por cima da foto. O nome
+ * completo continua no título do card. Sufixo de família (Junior, Filho, Neto)
+ * não é sobrenome, então leva junto o sobrenome de antes dele.
+ */
+function nomeCurto(nome: string): string {
+  const partes = nome.split(/\s+/).filter(Boolean);
+  if (partes.length <= 2) return partes.join(" ");
+  const ultimo = partes[partes.length - 1];
+  const sufixo = /^(junior|júnior|filho|neto|sobrinho)$/i.test(ultimo);
+  return sufixo
+    ? `${partes[0]} ${partes[partes.length - 2]} ${ultimo}`
+    : `${partes[0]} ${ultimo}`;
+}
+
 const RAIZ = join(process.cwd(), "scripts", "wp");
 const CONTEUDO = join(RAIZ, "content.json");
 const ASSETS = join(RAIZ, "assets.json");
@@ -371,7 +387,7 @@ function montar(c: Conteudo): IdentifiedSanityDocumentStub[] {
       name: p.nome,
       role: p.funcao,
       image: imagem(p.imagem, `retrato · ${p.nome}`),
-      caption: p.nome,
+      caption: nomeCurto(p.nome),
       bio: p.bio,
       // O site antigo não separava linhas de pesquisa das biografias. Fica
       // vazio de propósito, para o pesquisador preencher — inventar a partir
