@@ -183,7 +183,9 @@ export function moldura(c: Conteudo) {
   const contactSection = {
     _id: "contactSection",
     _type: "contactSection",
-    heading: "Fale com\n*a gente*",
+    // Não repetir o título do cabeçalho da seção (`CABECALHOS`, chave
+    // "contact"): os dois aparecem um embaixo do outro.
+    heading: "Aberto a *colaborações* com escolas, pesquisadores e cidadãos.",
     body:
       "Respondemos dúvidas sobre anfíbios e répteis, recebemos visitas de escolas " +
       "e conversamos sobre parcerias de pesquisa. Escreva contando o que você precisa.",
