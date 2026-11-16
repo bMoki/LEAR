@@ -19,7 +19,7 @@ export const contactRow = defineType({
       title: "Valor",
       type: "text",
       rows: 3,
-      description: `${INLINE_MD} Para e-mail, use [lear@bio.ufrj.br](mailto:lear@bio.ufrj.br).`,
+      description: `${INLINE_MD} Para e-mail, use [EMAIL-A-DEFINIR@ufsc.br](mailto:EMAIL-A-DEFINIR@ufsc.br).`,
       validation: (Rule) => Rule.required(),
     }),
     defineField({

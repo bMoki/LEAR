@@ -391,7 +391,7 @@ mas ficam no caminho dela:
 2. **Links não funcionam no `InlineText`.** `RichText.tsx:36` passa
    `allowedElements={["p","em","strong"]}` com `unwrapDisallowed`, então o `<a>`
    é desembrulhado. O e-mail em `contactInfo.rows` está escrito como link
-   Markdown (`[lear@bio.ufrj.br](mailto:…)`) e renderiza como texto morto. O ADR
+   Markdown (`[EMAIL-A-DEFINIR@ufsc.br](mailto:…)`) e renderiza como texto morto. O ADR
    0002 afirma que `InlineText` suporta links — a implementação não suporta.
    Adicionar `"a"` ao `allowedElements`. Vira mais relevante agora: o editor vai
    escrever esses links pelo CMS.
