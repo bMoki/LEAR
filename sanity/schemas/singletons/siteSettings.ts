@@ -95,7 +95,7 @@ export const siteSettings = defineType({
       of: [defineArrayMember({ type: "string" })],
       description:
         "Os textos miúdos da última linha do rodapé, um por item. " +
-        "Ex.: “© 2009—2026 · UFRJ”.",
+        "Ex.: “© 2009—2026 · UFSC”.",
     }),
   ],
   preview: { prepare: () => ({ title: "Configurações do site" }) },
